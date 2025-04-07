@@ -1,0 +1,13 @@
+{
+    "id": "time-in-class",
+    "name": "TimeInClass",
+    "version": "0.1.0",
+    "minAppVersion": "1.0.0",
+    "description": "Controla la asistencia presencial de alumnos por módulo formativo en Certificados de Profesionalidad.",
+    "author": "ikikidev & NovaFormaLab",
+    "authorUrl": "https://www.linkedin.com/in/victoria-n-9b8423180/",
+    "main": "main.js",
+    "css": "styles.css", 
+    "isDesktopOnly": false     
+  }
+  

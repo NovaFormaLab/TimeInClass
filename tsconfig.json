@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "esModuleInterop": true,      
+      "allowJs": true,
+      "checkJs": false,
+      "jsx": "preserve",
+      "lib": ["DOM", "ES2020"],
+      "noEmit": false,
+      "strict": true,
+      "baseUrl": ".",
+      "paths": {
+        "*": ["node_modules/*"]
+      },
+      "outDir": "."
+    },
+    "files": ["main.ts"]
+  }
+  
