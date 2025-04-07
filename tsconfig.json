@@ -16,6 +16,6 @@
       },
       "outDir": "."
     },
-    "files": ["main.ts"]
+    "files": ["main.ts", "src/**/*.ts"],
   }
   
