@@ -2,63 +2,73 @@
 
 **TimeInClass** es un complemento para [Obsidian](https://obsidian.md/) diseñado para registrar y controlar la **asistencia presencial** de alumnos en los **módulos formativos** de los Certificados de Profesionalidad. Este plugin permite a los formadores llevar un seguimiento preciso del tiempo de presencia de cada alumno, un factor clave para la obtención del certificado.
 
+![Logo](img/TimeInClass.jpg)
 ---
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades actuales
 
-- Registro de **inicio y fin** de sesiones presenciales por alumno y módulo.
-- Cálculo automático del **tiempo total asistido** y del **porcentaje de asistencia**.
-- Soporte para **múltiples módulos y grupos de alumnos**.
-- Visualización clara del progreso de cada alumno.
-- Generación de informes por alumno y módulo (Markdown, CSV o PDF).
-- Interfaz integrada en Obsidian: comandos, botones, plantillas.
+- 📥 Carga automática del **último archivo CSV** de la carpeta activa.
+- 📊 Generación automática de **notas Markdown por curso**, estructuradas por año.
+- 📆 División de la asistencia en **tablas mensuales**, con horas asistidas y porcentaje.
+- ✅ Cálculo automático del **estado de asistencia** (`✅` si ≥75%, `❌` si no).
+- 🗂 Organización de notas en subcarpetas (`Cursos/2024/Curso_2024_001456.md`)
+- 🕓 Registro de la fecha y hora de generación de cada nota.
+
+---
+## 📂 Estructura de carpetas en la Vault
+
+```
+Cursos/
+├── 2024/
+│   ├── Curso_2024_001456.md
+│   └── Curso_2024_001789.md
+```
+
 
 ---
 
-## 📂 Estructura de uso en Obsidian (Por el momento)
-
-Una posible organización del contenido en la Vault:
-
-```
-Certificados/
-├── IFCD0110/
-│   ├── alumnos.md
-│   ├── asistencia/
-│   │   ├── alumno1.md
-│   │   ├── alumno2.md
-│   └── resumen.md
-```
-
-Cada nota de alumno incluye:
+## 📄 Ejemplo de contenido generado
 
 ```markdown
-## Módulo MF0950_2
-- 🕒 Asistencia total: 24h / 30h
-- ✅ % Asistencia: 80%
-- 📅 Sesiones:
-  - [2025-04-01] 09:00–13:00 (4h)
-  - [2025-04-03] 09:00–13:00 (4h)
+# Curso 2024/001456
+
+- 📅 Fecha de inicio: 2025-01-12
+- 📅 Fecha de fin: 2025-03-15
+
+## Asistencia para el mes: 2025-01
+
+| Alumno                  | NIF         | Horas asistidas | % Asistencia | Estado |
+|-------------------------|-------------|------------------|---------------|--------|
+| JACINTO VALLEJO ESTEVE | 17136957W   | 77               | 81.9%         | ✅     |
+
+## Asistencia para el mes: 2025-02
+
+| Alumno                  | NIF         | Horas asistidas | % Asistencia | Estado |
+|-------------------------|-------------|------------------|---------------|--------|
+| JACINTO VALLEJO ESTEVE | 17136957W   | 85               | 85.9%         | ✅     |
+
+---
+
+🕓 Generado automáticamente el 07/04/2025 a las 14:25 con TimeInClass
 ```
 
 ---
 
-## 🛠 Requisitos
+## ⚙️ Requisitos
 
 - Obsidian 1.0 o superior
-- Node.js (para desarrollo)
-- TypeScript
+- Node.js y TypeScript para desarrollo local
+- Plugin habilitado en `.obsidian/plugins/TimeInClass/`
 
 ---
 
-## 🧪 En desarrollo
+## 🧪 Funcionalidades futuras previstas
 
-Este plugin está en fase de desarrollo. Las siguientes funcionalidades están previstas:
-
-- [ ] Registro de asistencia con botones de inicio/fin
-- [ ] Cálculo automático de porcentajes
-- [ ] Exportación a CSV y PDF
-- [ ] Configuración personalizada por módulo
-- [ ] Modo resumen por grupo o certificado
+- [ ] Registro manual de sesiones desde un Modal
+- [ ] Botones interactivos para marcar asistencia por alumno
+- [ ] Exportación de informes en PDF y CSV
+- [ ] Visualización gráfica del progreso por módulo o grupo
+- [ ] Configuración de umbrales mínimos de asistencia por curso
 
 ---
 
