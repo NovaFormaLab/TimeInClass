@@ -1,86 +1,122 @@
-# TimeInClass
+# ⏱️ TimeInClass – Plugin de Obsidian
 
-**TimeInClass** es un complemento para [Obsidian](https://obsidian.md/) diseñado para registrar y controlar la **asistencia presencial** de alumnos en los **módulos formativos** de los Certificados de Profesionalidad. Este plugin permite a los formadores llevar un seguimiento preciso del tiempo de presencia de cada alumno.
+![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-FFD6A5)
+![Versión](https://img.shields.io/badge/Versión-v0\.1\.0-FDFFB6)
+![Licencia](https://img.shields.io/badge/Licencia-GPL--3\.0-CAFFBF)
+![CSV](https://img.shields.io/badge/Datos-Cargados%20desde%20CSV-9BF6FF)
+![Asistencia](https://img.shields.io/badge/%F0%9F%93%85%20Asistencia-Activa-A0C4FF)
+![Construido con TypeScript](https://img.shields.io/badge/construido%20con-TypeScript-C1D3FE?logo=typescript&logoColor=white)
+![Obsidian](https://img.shields.io/badge/Obsidian-Plugin-BDB2FF)
+![Cute](https://img.shields.io/badge/🦄%20CyberCute-Approved-FFC6FF)
+![Desarrollado](https://img.shields.io/badge/Desarrollado-@ikikidev%20en%20NovaFormaLab-ffc0cb)
+
+**TimeInClass** es un plugin para Obsidian que permite **gestionar la asistencia en cursos de formación profesional (SIFO)** a partir de archivos CSV exportados por las plataformas oficiales.
+
+Está diseñado especialmente para certificados de profesionalidad y formación subvencionada, donde es obligatorio controlar la asistencia por módulo y por alumno.
 
 ![Logo](img/TimeInClass.jpg)
 ---
 
-## 🚀 Funcionalidades actuales
+## ⚙️ Funcionalidades
 
-- 📥 Carga automática del **último archivo CSV** de la carpeta activa.
-- 📊 Generación automática de **notas Markdown por curso**, estructuradas por año.
-- 📆 División de la asistencia en **tablas mensuales**, con horas asistidas y porcentaje.
-- ✅ Cálculo automático del **estado de asistencia** (`✅` si ≥75%, `❌` si no).
-- 🗂 Organización de notas en subcarpetas (`Cursos/2024/Curso_2024_001456.md`)
-- 🕓 Registro de la fecha y hora de generación de cada nota.
+- 🗂️ **Configuración de cursos y módulos** con fechas de inicio/fin
+- 📅 **Generación automática de hojas de asistencia** por alumno
+- 📊 Cálculo del **porcentaje de asistencia por módulo**
+- ✅ Asignación automática de estado (✔️/❌) según porcentaje
+- 🧾 Exportación en formato Markdown organizada por curso
+- 📁 Estructura de carpetas por año y código de curso
+- 🔄 Edición de cursos ya configurados
 
 ---
-## 📂 Estructura de carpetas en la Vault
+
+## 🛠️ Cómo se usa
+
+### 1. Configurar un curso
+
+Ejecuta el comando:
+
+```
+⚙️ Configurar curso (fechas y módulos)
+```
+
+1. Se te pedirá el **código del curso** (Ej: `2025/001234`).
+2. Si ya lo habías configurado, cargará los datos anteriores.
+3. Introduce la información del curso y sus módulos.
+4. Se generará un archivo `configuracion.md` en:
+
+```
+Cursos/2025/001234/configuracion.md
+```
+
+---
+
+### 2. Procesar un CSV
+
+Coloca el CSV del curso en una carpeta y abre cualquier archivo dentro de ella.
+
+Luego ejecuta:
+
+```
+📂 Generar notas desde CSV (SIFO)
+```
+
+El plugin:
+
+- Detectará el CSV más reciente en esa carpeta
+- Identificará el curso
+- Leerá la configuración desde `cursoConfigs` o desde el `.md`
+- Generará un archivo de asistencia por cada alumno:
+
+```
+Cursos/2025/001234/asistencia_12345678A.md
+```
+
+---
+
+## 📦 Estructura de carpetas generada
 
 ```
 Cursos/
-├── 2024/
-│   ├── Curso_2024_001456.md
-│   └── Curso_2024_001789.md
-```
-
-
----
-
-## 📄 Ejemplo de contenido generado
-
-```markdown
-# Curso 2024/001456
-
-- 📅 Fecha de inicio: 2025-01-12
-- 📅 Fecha de fin: 2025-03-15
-
-## Asistencia para el mes: 2025-01
-
-| Alumno                  | NIF         | Horas asistidas | % Asistencia | Estado |
-|-------------------------|-------------|------------------|---------------|--------|
-| JACINTO VALLEJO ESTEVE | 17136957W   | 77               | 81.9%         | ✅     |
-
-## Asistencia para el mes: 2025-02
-
-| Alumno                  | NIF         | Horas asistidas | % Asistencia | Estado |
-|-------------------------|-------------|------------------|---------------|--------|
-| JACINTO VALLEJO ESTEVE | 17136957W   | 85               | 85.9%         | ✅     |
-
----
-
-🕓 Generado automáticamente el 07/04/2025 a las 14:25 con TimeInClass
+└── 2025/
+    └── 001234/
+        ├── configuracion.md
+        ├── asistencia_12345678A.md
+        ├── asistencia_87654321B.md
+        └── ...
 ```
 
 ---
 
-## ⚙️ Requisitos
+## 📐 Cálculo de asistencia
 
-- Obsidian 1.0 o superior
-- Node.js y TypeScript para desarrollo local
-- Plugin habilitado en `.obsidian/plugins/TimeInClass/`
+Cada módulo tiene su intervalo de fechas (inicio/fin). El plugin:
 
----
-
-## 🧪 Funcionalidades futuras previstas
-
-- [ ] Registro manual de sesiones desde un Modal
-- [ ] Botones interactivos para marcar asistencia por alumno
-- [ ] Exportación de informes en PDF y CSV
-- [ ] Visualización gráfica del progreso por módulo o grupo
-- [ ] Configuración de umbrales mínimos de asistencia por curso
+- Calcula los días lectivos reales (de lunes a viernes)
+- Estima la asistencia del alumno dividiendo las horas asistidas entre las horas/día (configurado como 5 h por defecto)
+- Evalúa si el alumno ha superado el 75 % del módulo
 
 ---
 
-## 🤝 Contribuciones
+## 🧪 Formato de CSV esperado
 
-Si deseas colaborar, puedes abrir un issue o enviar un pull request. Toda ayuda es bienvenida.
+- Cod. Curso
+- Nombre alumno
+- NIF
+- Mes (YYYY-MM)
+- Horas asistidas
 
 ---
 
-## 📄 Licencia
+## 💻 Requisitos
 
-Este proyecto está licenciado bajo la **GNU General Public License v3.0 (GPL-3.0)**.  
-Consulta el archivo [`LICENSE`](./LICENSE) para más información.
+- Obsidian (última versión recomendada)
+- Modo de desarrollador activo
+- Archivo CSV exportado desde la plataforma SIFO
 
-2025 @ikikidev & NovaFormaLab
+---
+
+## 📃 Licencia
+
+Este proyecto está bajo la [Licencia Pública General GNU v3.0](LICENSE).
+
+© 2025 [ikikidev & NovaFormaLab](https://github.com/ikikidev)
