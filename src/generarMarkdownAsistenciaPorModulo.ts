@@ -1,23 +1,37 @@
-import { AsistenciaModulo } from "./calcularAsistenciaPorModulo";
+import { AsistenciaPorModulo } from "./calcularAsistenciaPorModulo";
 
-export function generarMarkdownAsistenciaPorModulo(
-  alumno: { nombre: string; nif: string },
-  modulos: AsistenciaModulo[]
-): string {
-  let md = `# Asistencia por módulo\n\n`;
-  md += `- 👤 Alumno: ${alumno.nombre}\n`;
-  md += `- 🆔 NIF: ${alumno.nif}\n\n`;
+function getAsistenciaEmoji(porcentaje: number): string {
+  if (porcentaje >= 80) return "✅";
+  if (porcentaje >= 75) return "⚠️";
+  return "❌";
+}
 
-  modulos.forEach(mod => {
-    const estado = mod.porcentajeAsistencia >= 75 ? "✅" : "❌";
-    md += `## ${mod.nombreModulo} (${mod.codigoModulo})\n`;
-    md += `- 📅 Días previstos: ${mod.diasEsperados}\n`;
-    md += `- 🕒 Días estimados asistidos: ${mod.diasAsistidosEstimados}\n`;
-    md += `- 📊 Porcentaje: ${mod.porcentajeAsistencia}% → ${estado}\n\n`;
+
+export function generarMarkdownAsistenciaPorModulo(resultados: AsistenciaPorModulo[]): string {
+  let markdown = `# Informe de Asistencia por Módulo\n\n`;
+
+  for (const resultado of resultados) {
+    markdown += `## ${resultado.modulo.codigo} - ${resultado.modulo.nombre}\n`;
+    markdown += `\n- 🗓️ Del ${formatearFecha(resultado.modulo.fechaInicio)} al ${formatearFecha(resultado.modulo.fechaFin)}\n`;
+    markdown += `\n- ⏳ Horas totales del modulo: ${resultado.modulo.horasTotales}\n`;
+    markdown += `\n| Alumno | NIF | Horas Asistidas | Ausencias NO Justificadas | % Asistencia |\n`;
+    markdown += `|--------|-----|------------------|----------------------------|---------------|\n`;
+
+    for (const alumno of resultado.alumnos) {
+      const emoji = getAsistenciaEmoji(alumno.porcentaje);
+      markdown += `| ${alumno.nombre} | ${alumno.nif} | ${alumno.horasAsistidas.toFixed(2)} | ${alumno.horasAusenciaNoJustificada.toFixed(2)} | ${emoji} ${alumno.porcentaje.toFixed(2)}% |\n`;
+    }
+
+    markdown += `\n---\n\n`;
+  }
+
+  return markdown;
+}
+
+function formatearFecha(fecha: Date): string {
+  return fecha.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
-
-  const ahora = new Date();
-  md += `---\n🕓 Generado el ${ahora.toLocaleDateString("es-ES")} a las ${ahora.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })} con TimeInClass\n`;
-
-  return md;
 }

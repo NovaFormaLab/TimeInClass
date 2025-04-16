@@ -5,13 +5,14 @@ export function generarMarkdownCurso(config: CursoConfig): string {
 
   md += `- 📅 **Inicio del curso:** ${config.fechaInicioCurso}\n`;
   md += `- 📅 **Fin del curso:** ${config.fechaFinCurso}\n`;
-  md += `- 📚 **Módulos:** ${config.numeroModulos}\n\n`;
+  md += `- 📚 **Módulos:** ${config.modulos.length}\n\n`;
 
   config.modulos.forEach((mod, i) => {
     md += `## Módulo ${i + 1}: ${mod.nombre}\n`;
     md += `- Código: ${mod.codigo}\n`;
     md += `- Inicio: ${mod.fechaInicio}\n`;
-    md += `- Fin: ${mod.fechaFin}\n\n`;
+    md += `- Fin: ${mod.fechaFin}\n`;
+    md += `- Horas totales: ${mod.horasTotales}\n\n`; // ✅ Línea clave
   });
 
   const fecha = new Date();
@@ -22,3 +23,4 @@ export function generarMarkdownCurso(config: CursoConfig): string {
 
   return md;
 }
+

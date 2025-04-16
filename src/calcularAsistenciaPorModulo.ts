@@ -1,63 +1,62 @@
-import { CursoConfig } from "./CourseConfigModal";
-import { contarDiasHabiles } from "./utils/diasHabiles";
+import { RegistroDiarioAlumno } from "./csvParser";
+import { ModuloCurso } from "./utils/parseConfiguracionMarkdown";
 
-interface FilaAsistencia {
-  nif: string;
-  alumno: string;
-  mes: string; // "2025-01"
-  horas: number;
-}
-
-export interface AsistenciaModulo {
-  nombreModulo: string;
-  codigoModulo: string;
-  porcentajeAsistencia: number;
-  diasEsperados: number;
-  diasAsistidosEstimados: number;
+export interface AsistenciaPorModulo {
+  modulo: ModuloCurso;
+  alumnos: {
+    nombre: string;
+    nif: string;
+    horasAsistidas: number;
+    horasAusenciaNoJustificada: number;
+    porcentaje: number;
+  }[];
 }
 
 export function calcularAsistenciaPorModulo(
-  config: CursoConfig,
-  asistenciaAlumno: FilaAsistencia[],
-  horasPorDia: number = 5 // configurable si quieres
-): AsistenciaModulo[] {
-  const resultado: AsistenciaModulo[] = [];
+  registros: RegistroDiarioAlumno[],
+  modulos: ModuloCurso[]
+): AsistenciaPorModulo[] {
+  const resultados: AsistenciaPorModulo[] = [];
 
-  for (const modulo of config.modulos) {
-    const fechaInicio = new Date(modulo.fechaInicio);
-    const fechaFin = new Date(modulo.fechaFin);
-    const diasLectivos = contarDiasHabiles(fechaInicio, fechaFin);
+  for (const modulo of modulos) {
+    const alumnosMap = new Map<string, {
+      nombre: string;
+      nif: string;
+      horasAsistidas: number;
+      horasAusenciaNoJustificada: number;
+    }>();
 
-    const mesesModulo = obtenerMesesDentroDeIntervalo(fechaInicio, fechaFin);
+    for (const registro of registros) {
+      const fechaRegistro = parseFecha(registro.fecha);
 
-    const filasModulo = asistenciaAlumno.filter(f =>
-      mesesModulo.includes(f.mes)
-    );
+      if (fechaRegistro >= modulo.fechaInicio && fechaRegistro <= modulo.fechaFin) {
+        const key = registro.nif;
+        const actual = alumnosMap.get(key) || {
+          nombre: registro.alumno,
+          nif: registro.nif,
+          horasAsistidas: 0,
+          horasAusenciaNoJustificada: 0,
+        };
 
-    const totalHoras = filasModulo.reduce((acc, f) => acc + f.horas, 0);
-    const diasEstimadosAsistidos = totalHoras / horasPorDia;
+        actual.horasAsistidas += registro.horasAsistidas;
+        actual.horasAusenciaNoJustificada += registro.horasAusenciaNoJustificada;
 
-    const porcentaje = Math.min((diasEstimadosAsistidos / diasLectivos) * 100, 100);
+        alumnosMap.set(key, actual);
+      }
+    }
 
-    resultado.push({
-      nombreModulo: modulo.nombre,
-      codigoModulo: modulo.codigo,
-      porcentajeAsistencia: Math.round(porcentaje * 10) / 10,
-      diasEsperados: diasLectivos,
-      diasAsistidosEstimados: Math.round(diasEstimadosAsistidos * 10) / 10
-    });
+    const alumnos = Array.from(alumnosMap.values()).map(a => ({
+      ...a,
+      porcentaje: modulo.horasTotales > 0 ? (a.horasAsistidas / modulo.horasTotales) * 100 : 0,
+    }));
+
+    resultados.push({ modulo, alumnos });
   }
 
-  return resultado;
+  return resultados;
 }
 
-function obtenerMesesDentroDeIntervalo(inicio: Date, fin: Date): string[] {
-  const meses: Set<string> = new Set();
-  let actual = new Date(inicio);
-  while (actual <= fin) {
-    const mes = actual.toISOString().slice(0, 7); // "YYYY-MM"
-    meses.add(mes);
-    actual.setMonth(actual.getMonth() + 1);
-  }
-  return Array.from(meses);
+function parseFecha(fechaStr: string): Date {
+  const [dia, mes, anio] = fechaStr.split("/").map(Number);
+  return new Date(anio, mes - 1, dia);
 }

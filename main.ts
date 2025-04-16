@@ -1,10 +1,7 @@
-import { Plugin, Notice, TFile } from "obsidian";
-import { parseCSVContent } from "./src/csvParser";
+import { Plugin, Notice, TFile, TFolder } from "obsidian";
 import { CourseConfigModal } from "./src/CourseConfigModal";
 import { CursoConfig } from "./src/CourseConfigModal";
 import { generarMarkdownCurso } from "./src/guardarConfiguracionCursoMarkdown";
-import { generarMarkdownAsistenciaPorModulo } from "./src/generarMarkdownAsistenciaPorModulo";
-import { calcularAsistenciaPorModulo } from "./src/calcularAsistenciaPorModulo";
 import { PromptModal } from "./src/PromptModal";
 
 /**
@@ -35,130 +32,135 @@ export default class TimeInClass extends Plugin {
     this.cursoConfigs = data?.cursoConfigs || {};
 
     this.addCommand({
-      id: "generar-asistencia-desde-csv",
-      name: "📂 Generar notas desde CSV (SIFO)",
-      callback: async () => {
-        const activeFile = this.app.workspace.getActiveFile();
-        if (!activeFile) {
-          new Notice("Abre una nota dentro de la carpeta donde esté el CSV.");
-          return;
-        }
-
-        const activeFolderPath = activeFile.path
-          .split("/")
-          .slice(0, -1)
-          .join("/");
-        const folderFiles = this.app.vault
-          .getFiles()
-          .filter(
-            (f) => f.path.startsWith(activeFolderPath) && f.extension === "csv"
-          );
-
-        if (folderFiles.length === 0) {
-          new Notice("No se encontró ningún archivo CSV en esta carpeta.");
-          return;
-        }
-
-        // Seleccionar el archivo CSV más reciente
-        const csvFile = folderFiles.reduce((a, b) =>
-          a.stat.mtime > b.stat.mtime ? a : b
-        );
-
-        const content = await this.app.vault.read(csvFile);
-        const cursos = parseCSVContent(content);
-
-        for (const curso of cursos) {
-          const config = this.cursoConfigs[curso.codigo];
-          if (!config) {
-            new Notice(
-              `⚠️ Curso ${curso.codigo} no tiene configuración. Usa "Configurar curso".`
-            );
-            continue;
-          }
-
-          const [año, codInterno] = curso.codigo.split("/") ?? [
-            "SinFecha",
-            curso.codigo,
-          ];
-          const folderPath = `Cursos/${año}/${codInterno}`;
-          await this.ensureFolderExists(folderPath);
-
-          const alumnosUnicos = Array.from(
-            new Set(curso.alumnos.map((a) => a.nif))
-          );
-
-          for (const nif of alumnosUnicos) {
-            const alumno = curso.alumnos.find((a) => a.nif === nif);
-            const nombre = alumno?.nombre ?? "Desconocido";
-
-            const filas = curso.alumnos
-              .filter((a) => a.nif === nif)
-              .map((a) => ({
-                nif: a.nif,
-                alumno: a.nombre,
-                mes: a.mes,
-                horas: parseFloat(String(a.horasAsistidas ?? "0").replace(",", ".").replace(";", "."))
-              }));
-
-            const resultados = calcularAsistenciaPorModulo(config, filas, 5);
-            const markdown = generarMarkdownAsistenciaPorModulo(
-              { nombre, nif },
-              resultados
-            );
-
-            const filePath = `${folderPath}/asistencia_${nif}.md`;
-            const existing = this.app.vault.getAbstractFileByPath(filePath);
-            if (existing instanceof TFile) {
-              await this.app.vault.modify(existing, markdown);
-            } else {
-              await this.app.vault.create(filePath, markdown);
-            }
-          }
-        }
-
-        new Notice(
-          `✅ CSV procesado: ${csvFile.name}\n📘 Cursos generados: ${cursos.length}`
-        );
-      },
-    });
-
-    this.addCommand({
       id: "configurar-curso",
       name: "⚙️ Configurar curso (fechas y módulos)",
       callback: () => {
-        const promptModal = new PromptModal(this.app, "Introduce el código del curso (Ej: 2025/001234)", async (codigoCurso) => {
-          const configExistente = this.cursoConfigs[codigoCurso];
-    
-          new CourseConfigModal(this.app, async (datosCurso) => {
-            // Guardar configuración
-            this.cursoConfigs[datosCurso.codigoCurso] = datosCurso;
-            await this.saveData({ cursoConfigs: this.cursoConfigs });
-    
-            // Guardar markdown
-            const markdown = generarMarkdownCurso(datosCurso);
-            const [anio, codInterno] = datosCurso.codigoCurso.split("/") ?? [
-              "Desconocido",
-              datosCurso.codigoCurso,
-            ];
-            const folderPath = `Cursos/${anio}/${codInterno}`;
-            const filePath = `${folderPath}/configuracion.md`;
-    
-            await this.ensureFolderExists(folderPath);
-    
-            const existing = this.app.vault.getAbstractFileByPath(filePath);
-            if (existing instanceof TFile) {
-              await this.app.vault.modify(existing, markdown);
-            } else {
-              await this.app.vault.create(filePath, markdown);
-            }
-    
-            new Notice(`✅ Curso ${datosCurso.codigoCurso} configurado y guardado en ${filePath}`);
-          }, configExistente).open();
-        });
-    
+        const promptModal = new PromptModal(
+          this.app,
+          "Introduce el código del curso (Ej: 2025/001234)",
+          async (codigoCurso) => {
+            const configExistente = this.cursoConfigs[codigoCurso];
+
+            new CourseConfigModal(
+              this.app,
+              async (datosCurso) => {
+                // Guardar configuración
+                this.cursoConfigs[datosCurso.codigoCurso] = datosCurso;
+                await this.saveData({ cursoConfigs: this.cursoConfigs });
+
+                // Guardar markdown
+                const markdown = generarMarkdownCurso(datosCurso);
+                const [anio, codInterno] = datosCurso.codigoCurso.split(
+                  "/"
+                ) ?? ["Desconocido", datosCurso.codigoCurso];
+                const folderPath = `Cursos/${anio}/${codInterno}`;
+                const filePath = `${folderPath}/configuracion.md`;
+
+                await this.ensureFolderExists(folderPath);
+
+                const existing = this.app.vault.getAbstractFileByPath(filePath);
+                if (existing instanceof TFile) {
+                  await this.app.vault.modify(existing, markdown);
+                } else {
+                  await this.app.vault.create(filePath, markdown);
+                }
+
+                new Notice(
+                  `✅ Curso ${datosCurso.codigoCurso} configurado y guardado en ${filePath}`
+                );
+              },
+              configExistente
+            ).open();
+          }
+        );
+
         promptModal.open();
-      }
+      },
     });
-    
+    this.addCommand({
+      id: "generar-asistencia-desde-csv",
+      name: "📂 Generar informe de asistencia desde CSV",
+      callback: async () => {
+        const promptModal = new PromptModal(
+          this.app,
+          "Introduce el código del curso (Ej: 2025/001234)",
+          async (codigoCurso) => {
+            const config = this.cursoConfigs[codigoCurso];
+            if (!config) {
+              new Notice("❌ No se encontró configuración para ese código.");
+              return;
+            }
+
+            // 1. Obtener el archivo CSV (activo o más reciente del directorio)
+            let csvFile = this.app.workspace.getActiveFile();
+            if (!csvFile || !csvFile.name.endsWith(".csv")) {
+              const abstract = this.app.vault.getAbstractFileByPath(
+                config.rutaCurso
+              );
+
+              if (!(abstract instanceof TFolder)) {
+                new Notice("❌ No se pudo acceder al directorio del curso.");
+                return;
+              }
+
+              const archivosCSV = abstract.children.filter(
+                (f) => f instanceof TFile && f.name.endsWith(".csv")
+              ) as TFile[];
+
+              if (archivosCSV.length === 0) {
+                new Notice(
+                  "❌ No se encontró ningún archivo CSV en la carpeta del curso."
+                );
+                return;
+              }
+
+              archivosCSV.sort((a, b) => b.stat.mtime - a.stat.mtime);
+              csvFile = archivosCSV[0];
+              new Notice(`📄 Se usará el CSV más reciente: ${csvFile.name}`);
+            }
+
+            // 2. Leer contenido del CSV
+            const csvText = await this.app.vault.read(csvFile);
+
+            // 3. Parsear registros
+            const { parseCSVContent } = await import("./src/csvParser");
+            const registros = parseCSVContent(csvText);
+
+            // 4. Cargar módulos desde configuracion.md
+            const { cargarConfiguracionCursoMarkdown } = await import(
+              "./src/cargarConfiguracionCursoMarkdown"
+            );
+            const modulos = await cargarConfiguracionCursoMarkdown(
+              this.app.vault,
+              `${config.rutaCurso}/configuracion.md`
+            );
+
+            if (!modulos) {
+              new Notice("❌ No se pudo cargar configuracion.md");
+              return;
+            }
+
+            // 5. Calcular asistencia (ya no pasamos horasTotalesPorModulo)
+            const { calcularAsistenciaPorModulo } = await import(
+              "./src/calcularAsistenciaPorModulo"
+            );
+            const resultados = calcularAsistenciaPorModulo(registros, modulos);
+
+            // 6. Guardar informe
+            const { guardarInformeAsistencia } = await import(
+              "./src/generarInformeAsistencia"
+            );
+            await guardarInformeAsistencia(
+              this.app.vault,
+              config.rutaCurso,
+              resultados
+            );
+
+            new Notice("✅ Informe de asistencia generado correctamente.");
+          }
+        );
+        promptModal.open();
+      },
+    });
   }
 }

@@ -17,15 +17,72 @@ Está diseñado especialmente para certificados de profesionalidad y formación 
 ![Logo](img/TimeInClass.jpg)
 ---
 
-## ⚙️ Funcionalidades
+## ✅ Cambios recientes en TimeInClass
 
-- 🗂️ **Configuración de cursos y módulos** con fechas de inicio/fin
-- 📅 **Generación automática de hojas de asistencia** por alumno
-- 📊 Cálculo del **porcentaje de asistencia por módulo**
-- ✅ Asignación automática de estado (✔️/❌) según porcentaje
-- 🧾 Exportación en formato Markdown organizada por curso
-- 📁 Estructura de carpetas por año y código de curso
-- 🔄 Edición de cursos ya configurados
+### ✔️ Módulos con duración específica
+Cada módulo ahora incluye su propio campo `horasTotales`, configurable desde el modal. El cálculo de asistencia se realiza individualmente en base a ese valor.
+
+### 📊 Informe con indicadores visuales
+El informe de asistencia muestra un icono según el porcentaje de asistencia del alumno en cada módulo:
+
+- ✅ 80 % o más
+- ⚠️ entre 75 % y 79.99 %
+- ❌ menos del 75 %
+
+Esto permite una visualización rápida del estado de cada participante.
+
+### 📝 Archivo configuracion.md mejorado
+Al guardar un curso desde el modal, se genera automáticamente el archivo `configuracion.md` incluyendo el campo:
+
+```
+- Horas totales: XX
+```
+
+en cada bloque de módulo.
+
+---
+
+## 🔁 Flujo actualizado del plugin
+
+1. **Configurar curso** desde el comando Obsidian.
+2. Se genera automáticamente `configuracion.md` con estructura estandarizada.
+3. Cargar un CSV desde el editor o dejar que el plugin use el más reciente en la carpeta del curso.
+4. Ejecutar el comando de generación del informe.
+5. Se crea `informe_asistencia.md` con datos, porcentajes y emojis visuales por módulo.
+
+---
+
+## ⚙️ COMANDOS DISPONIBLES
+
+1. `⚙️ Configurar curso`
+   - Crea `CursoConfig` y `configuracion.md`
+
+2. `📂 Generar informe de asistencia desde CSV`
+   - Usa `PromptModal` para introducir código de curso.
+   - Carga CSV desde archivo activo.
+   - Procesa y guarda informe Markdown.
+
+🟢 Ambos comandos funcionan y están bien conectados.
+
+---
+
+## 📌 SUGERENCIAS FINALES (FUTURAS MEJORAS)
+
+1. **Selector de archivo CSV**
+   - Usar una lista o modal para elegir el archivo CSV en lugar de requerir que esté activo.
+
+2. **Horas totales por módulo personalizables**
+   - Permitir establecerlas por módulo, no solo una única cantidad global.
+
+3. **Exportar PDF o Excel**
+   - Ofrecer la posibilidad de exportar el informe generado como PDF o tabla Excel.
+
+4. **Panel de resumen del curso**
+   - Crear un comando para visualizar todos los informes generados por curso desde un índice general.
+
+---
+
+¿Quieres que prepare una lista de tareas (todo list) o un pequeño roadmap de funcionalidades para que puedas planificar futuras versiones del plugin?
 
 ---
 
@@ -65,10 +122,10 @@ El plugin:
 - Detectará el CSV más reciente en esa carpeta
 - Identificará el curso
 - Leerá la configuración desde `cursoConfigs` o desde el `.md`
-- Generará un archivo de asistencia por cada alumno:
+- Generará un archivo de asistencia por cada curso:
 
 ```
-Cursos/2025/001234/asistencia_12345678A.md
+Cursos/2025/001234/informe_asistencia.md
 ```
 
 ---
@@ -80,8 +137,7 @@ Cursos/
 └── 2025/
     └── 001234/
         ├── configuracion.md
-        ├── asistencia_12345678A.md
-        ├── asistencia_87654321B.md
+        ├── informe_asistencia.md        
         └── ...
 ```
 
@@ -99,18 +155,19 @@ Cada módulo tiene su intervalo de fechas (inicio/fin). El plugin:
 
 ## 🧪 Formato de CSV esperado
 
-- Cod. Curso
-- Nombre alumno
-- NIF
-- Mes (YYYY-MM)
-- Horas asistidas
+- `Data` (formato: dd/mm/yyyy)
+- `Alumno`
+- `NIF`
+- `Horas asistidas presenciais`
+- `Horas ausencias NON xust. presenciais`
+
+> El plugin ignora datos virtuales o justificados si no se configuran explícitamente.
 
 ---
 
 ## 💻 Requisitos
 
 - Obsidian (última versión recomendada)
-- Modo de desarrollador activo
 - Archivo CSV exportado desde la plataforma SIFO
 
 ---

@@ -5,16 +5,16 @@ export interface Modulo {
   nombre: string;
   fechaInicio: string;
   fechaFin: string;
+  horasTotales: number;
 }
 
 export interface CursoConfig {
   codigoCurso: string;
-  codigo: string;
   denominacionCurso: string;
   fechaInicioCurso: string;
   fechaFinCurso: string;
-  numeroModulos: number;
   modulos: Modulo[];
+  rutaCurso: string;
 }
 
 export class CourseConfigModal extends Modal {
@@ -36,43 +36,43 @@ export class CourseConfigModal extends Modal {
     contentEl.createEl("h3", { text: "Datos generales del curso" });
 
     let codigoCurso = this.dataExistente?.codigoCurso || "";
-    let codigo = this.dataExistente?.codigo || "";
     let denominacionCurso = this.dataExistente?.denominacionCurso || "";
     let fechaInicioCurso = this.dataExistente?.fechaInicioCurso || "";
     let fechaFinCurso = this.dataExistente?.fechaFinCurso || "";
-    let numeroModulos = this.dataExistente?.numeroModulos || 0;
 
-    new Setting(contentEl)
-      .setName("Código del curso")
-      .addText((text) =>
-        text
-          .setPlaceholder("Ej: 2024/001234")
-          .onChange((value) => (codigoCurso = value))
-      );
+    const modulos: Modulo[] = this.dataExistente?.modulos?.slice() || [];
+    let numeroModulos = modulos.length;
 
-    new Setting(contentEl)
-      .setName("Código")
-      .addText((text) => text.onChange((value) => (codigo = value)));
+    new Setting(contentEl).setName("Código del curso").addText((text) =>
+      text
+        .setPlaceholder("Ej: 2024/001234")
+        .setValue(codigoCurso)
+        .onChange((value) => (codigoCurso = value))
+    );
 
     new Setting(contentEl)
       .setName("Denominación del curso")
-      .addText((text) => text.onChange((value) => (denominacionCurso = value)));
+      .addText((text) =>
+        text
+          .setValue(denominacionCurso)
+          .onChange((value) => (denominacionCurso = value))
+      );
 
     new Setting(contentEl)
       .setName("Fecha de inicio del curso")
       .addText((text) =>
         text
           .setPlaceholder("YYYY-MM-DD")
+          .setValue(fechaInicioCurso)
           .onChange((value) => (fechaInicioCurso = value))
       );
 
-    new Setting(contentEl)
-      .setName("Fecha de fin del curso")
-      .addText((text) =>
-        text
-          .setPlaceholder("YYYY-MM-DD")
-          .onChange((value) => (fechaFinCurso = value))
-      );
+    new Setting(contentEl).setName("Fecha de fin del curso").addText((text) =>
+      text
+        .setPlaceholder("YYYY-MM-DD")
+        .setValue(fechaFinCurso)
+        .onChange((value) => (fechaFinCurso = value))
+    );
 
     new Setting(contentEl).setName("Número de módulos").addText((text) => {
       text
@@ -87,8 +87,6 @@ export class CourseConfigModal extends Modal {
         });
     });
 
-    const modulos: Modulo[] = this.dataExistente?.modulos?.slice() || [];
-
     const moduloFieldsContainer = contentEl.createDiv();
 
     const renderModulosFields = () => {
@@ -100,6 +98,7 @@ export class CourseConfigModal extends Modal {
           nombre: "",
           fechaInicio: "",
           fechaFin: "",
+          horasTotales: 0,
         });
       }
       modulos.length = numeroModulos;
@@ -143,13 +142,22 @@ export class CourseConfigModal extends Modal {
               .setValue(modulo.fechaFin)
               .onChange((value) => (modulo.fechaFin = value))
           );
+
+        new Setting(moduloFieldsContainer)
+          .setName("Horas totales")
+          .addText((text) =>
+            text
+              .setPlaceholder("Ej: 60")
+              .setValue(modulo.horasTotales?.toString() || "")
+              .onChange((value) => {
+                const num = parseInt(value);
+                if (!isNaN(num)) modulo.horasTotales = num;
+              })
+          );
       }
     };
 
-    contentEl.createEl("h3", { text: "Módulos del curso" });
-
     if (numeroModulos > 0) {
-      contentEl.createEl("h3", { text: "Módulos del curso" });
       renderModulosFields();
     }
 
@@ -165,7 +173,6 @@ export class CourseConfigModal extends Modal {
             !codigoCurso ||
             !fechaInicioCurso ||
             !fechaFinCurso ||
-            !codigo ||
             !denominacionCurso
           ) {
             new Notice("❌ Por favor completa los datos generales del curso.");
@@ -178,22 +185,28 @@ export class CourseConfigModal extends Modal {
               !modulo.codigo ||
               !modulo.nombre ||
               !modulo.fechaInicio ||
-              !modulo.fechaFin
+              !modulo.fechaFin ||
+              !modulo.horasTotales
             ) {
               new Notice(`❌ El módulo ${i + 1} tiene campos incompletos.`);
               return;
             }
           }
 
+          const [anio, codInterno] = codigoCurso.split("/") ?? [
+            "Desconocido",
+            codigoCurso,
+          ];
+          const rutaCurso = `Cursos/${anio}/${codInterno}`;
+
           this.close();
           this.onSubmit({
             codigoCurso,
-            codigo,
             denominacionCurso,
             fechaInicioCurso,
             fechaFinCurso,
-            numeroModulos,
             modulos,
+            rutaCurso,
           });
         })
     );
