@@ -17,16 +17,18 @@
 
 ---
 
-### 📦 Paso 2: Descargar el plugin desde GitHub
+### 📦 Paso 2: Descargar la última versión del plugin desde GitHub
 
-1. Accede al repositorio oficial del plugin:
-   👉 [https://github.com/NovaFormaLab/TimeInClass](https://github.com/NovaFormaLab/TimeInClass)
-2. Haz clic en el botón **“Code”** y luego en **“Download ZIP”**.
-3. Extrae el contenido del ZIP.
-4. Copia la **carpeta `TimeInClass` extraída** en la carpeta de plugins que abriste en el paso anterior.
+1. Accede a la sección de releases del repositorio:
+   👉 [https://github.com/NovaFormaLab/TimeInClass/releases](https://github.com/NovaFormaLab/TimeInClass/releases)
+2. Haz clic en la última versión publicada (por ejemplo `v0.1.0`).
+3. Descarga los archivos:
+   - `main.js`
+   - `manifest.json`
+4. Crea una carpeta con nombre `TimeInClass` dentro de la carpeta de plugins y coloca ambos archivos dentro.
 
-   👉 La ruta típica es:  
-   `TuVault/.obsidian/plugins/TimeInClass`
+   👉 Ruta típica:  
+   `TuVault/.obsidian/plugins/TimeInClass/`
 
 ---
 
@@ -53,5 +55,3 @@ desde el **lanzador de comandos** (`Ctrl+P` o `Cmd+P`) o asignarles atajos.
 ### 🧭 Consejo final
 
 Guarda tus archivos CSV dentro de la carpeta del curso creada por el plugin, para que pueda detectarlos automáticamente. El informe se generará en Markdown listo para imprimir, compartir o exportar como PDF.
-
----
