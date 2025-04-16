@@ -66,26 +66,6 @@ en cada bloque de módulo.
 
 ---
 
-## 📌 SUGERENCIAS FINALES (FUTURAS MEJORAS)
-
-1. **Selector de archivo CSV**
-   - Usar una lista o modal para elegir el archivo CSV en lugar de requerir que esté activo.
-
-2. **Horas totales por módulo personalizables**
-   - Permitir establecerlas por módulo, no solo una única cantidad global.
-
-3. **Exportar PDF o Excel**
-   - Ofrecer la posibilidad de exportar el informe generado como PDF o tabla Excel.
-
-4. **Panel de resumen del curso**
-   - Crear un comando para visualizar todos los informes generados por curso desde un índice general.
-
----
-
-¿Quieres que prepare una lista de tareas (todo list) o un pequeño roadmap de funcionalidades para que puedas planificar futuras versiones del plugin?
-
----
-
 ## 🛠️ Cómo se usa
 
 ### 1. Configurar un curso
@@ -169,6 +149,12 @@ Cada módulo tiene su intervalo de fechas (inicio/fin). El plugin:
 
 - Obsidian (última versión recomendada)
 - Archivo CSV exportado desde la plataforma SIFO
+
+---
+
+## 🛠️ Guía rápida: Instalar el plugin **TimeInClass** desde GitHub en Obsidian
+
+Échale un vistazo a la [Guía rápida de TimeInClass](Guia-Rapida-Uso.md)
 
 ---
 
